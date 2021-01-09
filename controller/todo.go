@@ -1,59 +1,56 @@
 package controller
 
 import (
+	"github.com/mgxian/todolist/domain"
 	"github.com/mgxian/todolist/repository"
-	"strings"
 )
-
-func IsItemDone(item string) bool {
-	return strings.SplitN(item, " ", 2)[0] == "true"
-}
 
 type TodoController struct {
 	store *repository.Store
 }
 
-func (t *TodoController) Add(s string) {
-	items := t.store.GetTodoItems()
-	s = "false " + s
-	items = append(items, s)
-	t.store.SaveTodoItems(items...)
+func (t *TodoController) Add(name string) int {
+	todo := t.store.GetTodo()
+	item := domain.NewTodoItem(name)
+	todo.Add(item)
+	t.store.SaveTodo(todo)
+	return todo.Size()
 }
 
-func (t *TodoController) Done(i int) {
-	items := t.store.GetTodoItems()
-	needDoneItemIndex := -1
+func (t *TodoController) find(items []domain.TodoItem, i int) int {
+	found := -1
 	count := 0
 	for index, item := range items {
-		if IsItemDone(item) {
+		if item.IsDone() {
 			continue
 		}
 		count++
 		if count == i {
-			needDoneItemIndex = index
+			found = index
 		}
 	}
-	item := strings.SplitN(items[needDoneItemIndex], " ", 2)[1]
-	items[i-1] = "true " + item
-	t.store.SaveTodoItems(items...)
+	return found + 1
 }
 
-func (t *TodoController) NotDoneTodoItems() (result []string) {
-	items := t.store.GetTodoItems()
-	for _, item := range items {
-		data := strings.SplitN(item, " ", 2)
-		isDone := data[0] == "true"
-		if isDone {
-			continue
-		}
-		result = append(result, item)
+func (t *TodoController) Done(i int) int {
+	todo := t.store.GetTodo()
+	found := t.find(todo.Items(), i)
+	if found == -1 {
+		return -1
 	}
-	return
+	todo.Done(found)
+	t.store.SaveTodo(todo)
+	return found
 }
 
-func (t *TodoController) TodoItems() (result []string) {
-	items := t.store.GetTodoItems()
-	return items
+func (t *TodoController) NotDoneTodoItems() []domain.TodoItem {
+	todo := t.store.GetTodo()
+	return todo.NotDoneItems()
+}
+
+func (t *TodoController) TodoItems() []domain.TodoItem {
+	todo := t.store.GetTodo()
+	return todo.Items()
 }
 
 func NewTodoController(store *repository.Store) *TodoController {

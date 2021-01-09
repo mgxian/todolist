@@ -1,10 +1,9 @@
 package repository
 
 import (
-	"fmt"
+	"github.com/mgxian/todolist/domain"
 	"io/ioutil"
 	"os"
-	"strings"
 )
 
 func IsFileExist(path string) bool {
@@ -47,27 +46,20 @@ func NewStore(path string) *Store {
 	return &Store{path: path}
 }
 
-func (s *Store) GetTodoItems() []string {
+func (s *Store) GetTodo() *domain.Todo {
 	contents, err := ioutil.ReadFile(s.path)
 	if err != nil {
 		panic(err)
 	}
-	lines := strings.Split(string(contents), "\n")
-	return lines[:len(lines)-1]
+	return domain.NewTodoFromText(string(contents))
 }
 
-func (s *Store) SaveTodoItems(items ...string) {
+func (s *Store) SaveTodo(todo *domain.Todo) {
 	ClearFile(s.path)
 	f, err := os.OpenFile(s.path, os.O_WRONLY, 0600)
 	if err != nil {
 		panic(err)
 	}
 	defer f.Close()
-	for _, item := range items {
-		line := fmt.Sprintln(item)
-		_, err := f.WriteString(line)
-		if err != nil {
-			panic(err)
-		}
-	}
+	f.WriteString(todo.Dump())
 }

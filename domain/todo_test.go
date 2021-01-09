@@ -1,6 +1,8 @@
 package domain
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestCreateTodo(t *testing.T) {
 	todo := NewTodo()
@@ -60,7 +62,11 @@ func TestTodoDoneItem(t *testing.T) {
 
 	todo.Done(2)
 	items := todo.DoneItems()
-	if len(items) != 1 {
-		t.Errorf("got %d, want 1", len(items))
-	}
+	assertEqual(t, len(items), 1)
+}
+
+func TestNewTodoFromText(t *testing.T) {
+	text := "false a new todo item\ntrue a done item\n"
+	todo := NewTodoFromText(text)
+	assertEqual(t, todo.Size(), 2)
 }

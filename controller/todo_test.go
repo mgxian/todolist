@@ -1,7 +1,9 @@
 package controller
 
 import (
+	"fmt"
 	"github.com/mgxian/todolist/repository"
+	"reflect"
 	"testing"
 )
 
@@ -15,16 +17,12 @@ func TestAddTodoItem(t *testing.T) {
 	item := "a todo item"
 	sut.Add(item)
 
-	items := store.GetTodoItems()
-	if len(items) != 1 {
-		t.Errorf("got %d,want %d", len(items), 1)
-	}
+	size := store.GetTodo().Size()
+	assertEqual(t, size, 1)
 
-	got := items[0]
-	want := "false " + item
-	if got != want {
-		t.Errorf("got %q, want %q", got, want)
-	}
+	got := store.GetTodo().Items()[0]
+	fmt.Println(got)
+	assertEqual(t, got.Name(), item)
 }
 
 func TestDoneTodoItem(t *testing.T) {
@@ -37,16 +35,11 @@ func TestDoneTodoItem(t *testing.T) {
 	sut.Add(anotherItem)
 	sut.Done(1)
 
-	items := store.GetTodoItems()
-	if len(items) != 2 {
-		t.Errorf("got %d,want %d", len(items), 1)
-	}
+	size := store.GetTodo().Size()
+	assertEqual(t, size, 2)
 
-	got := items[1]
-	want := "false " + anotherItem
-	if got != want {
-		t.Errorf("got %q, want %q", got, want)
-	}
+	got := store.GetTodo().DoneItems()[0]
+	assertEqual(t, got.Name(), item)
 }
 
 func TestListTodoItems(t *testing.T) {
@@ -59,19 +52,16 @@ func TestListTodoItems(t *testing.T) {
 	sut.Add(anotherItem)
 
 	items := sut.TodoItems()
-	if len(items) != 2 {
-		t.Errorf("got %d,want %d", len(items), 2)
-	}
 
-	want := "false " + item
-	if items[0] != want {
-		t.Errorf("got %q, want %q", items[0], want)
-	}
+	assertEqual(t, len(items), 2)
 
-	want = "false " + anotherItem
-	if items[1] != want {
-		t.Errorf("got %q, want %q", items[1], want)
-	}
+	want := items[0]
+	assertEqual(t, want.Name(), item)
+	assertEqual(t, want.IsDone(), false)
+
+	want = items[1]
+	assertEqual(t, want.Name(), anotherItem)
+	assertEqual(t, want.IsDone(), false)
 }
 
 func TestListNotDoneTodoItems(t *testing.T) {
@@ -85,12 +75,16 @@ func TestListNotDoneTodoItems(t *testing.T) {
 	sut.Done(1)
 
 	items := sut.NotDoneTodoItems()
-	if len(items) != 1 {
-		t.Errorf("got %d,want %d", len(items), 1)
-	}
+	assertEqual(t, len(items), 1)
 
-	want := "false " + anotherItem
-	if items[0] != want {
-		t.Errorf("got %q, want %q", items[0], want)
+	want := items[0]
+	assertEqual(t, want.Name(), anotherItem)
+	assertEqual(t, want.IsDone(), false)
+}
+
+func assertEqual(t *testing.T, actual, expected interface{}) {
+	t.Helper()
+	if !reflect.DeepEqual(actual, expected) {
+		t.Errorf("got %v, want %v", actual, expected)
 	}
 }
