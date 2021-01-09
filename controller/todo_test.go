@@ -1,14 +1,15 @@
 package controller
 
 import (
+	"github.com/mgxian/todolist/repository"
 	"testing"
 )
 
 var path = "test-todolist.txt"
 
 func TestAddTodoItem(t *testing.T) {
-	DeleteFile(path)
-	store := NewStore(path)
+	repository.DeleteFile(path)
+	store := repository.NewStore(path)
 	sut := NewTodoController(store)
 
 	item := "a todo item"
@@ -27,8 +28,8 @@ func TestAddTodoItem(t *testing.T) {
 }
 
 func TestDoneTodoItem(t *testing.T) {
-	DeleteFile(path)
-	store := NewStore(path)
+	repository.DeleteFile(path)
+	store := repository.NewStore(path)
 	sut := NewTodoController(store)
 	item := "a todo item"
 	sut.Add(item)
@@ -49,8 +50,8 @@ func TestDoneTodoItem(t *testing.T) {
 }
 
 func TestListTodoItems(t *testing.T) {
-	DeleteFile(path)
-	store := NewStore(path)
+	repository.DeleteFile(path)
+	store := repository.NewStore(path)
 	sut := NewTodoController(store)
 	item := "a todo item"
 	sut.Add(item)
@@ -62,18 +63,20 @@ func TestListTodoItems(t *testing.T) {
 		t.Errorf("got %d,want %d", len(items), 2)
 	}
 
-	if items[0] != item {
-		t.Errorf("got %q, want %q", items[0], item)
+	want := "false " + item
+	if items[0] != want {
+		t.Errorf("got %q, want %q", items[0], want)
 	}
 
-	if items[1] != anotherItem {
-		t.Errorf("got %q, want %q", items[1], anotherItem)
+	want = "false " + anotherItem
+	if items[1] != want {
+		t.Errorf("got %q, want %q", items[1], want)
 	}
 }
 
 func TestListNotDoneTodoItems(t *testing.T) {
-	DeleteFile(path)
-	store := NewStore(path)
+	repository.DeleteFile(path)
+	store := repository.NewStore(path)
 	sut := NewTodoController(store)
 	item := "a todo item"
 	sut.Add(item)
@@ -86,7 +89,8 @@ func TestListNotDoneTodoItems(t *testing.T) {
 		t.Errorf("got %d,want %d", len(items), 1)
 	}
 
-	if items[0] != anotherItem {
-		t.Errorf("got %q, want %q", items[0], anotherItem)
+	want := "false " + anotherItem
+	if items[0] != want {
+		t.Errorf("got %q, want %q", items[0], want)
 	}
 }
