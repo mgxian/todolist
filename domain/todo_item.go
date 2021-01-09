@@ -1,4 +1,4 @@
-package model
+package domain
 
 type TodoItem struct {
 	name   string

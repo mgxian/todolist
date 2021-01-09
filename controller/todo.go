@@ -7,27 +7,38 @@ type TodoController struct {
 }
 
 func (t *TodoController) Add(s string) {
+	items := t.store.GetTodoItems()
 	s = "false " + s
-	t.store.SaveTodoItems(s)
+	items = append(items, s)
+	t.store.SaveTodoItems(items...)
 }
 
 func (t *TodoController) Done(i int) {
-	items :=t.store.GetTodoItems()
+	items := t.store.GetTodoItems()
 	needDoneItem := items[i-1]
-	item:=strings.SplitN(needDoneItem," ",2)[1]
-	items[i-1] = "true "+item
+	item := strings.SplitN(needDoneItem, " ", 2)[1]
+	items[i-1] = "true " + item
 	t.store.SaveTodoItems(items...)
 }
 
 func (t *TodoController) NotDoneTodoItems() (result []string) {
-	items:=t.store.GetTodoItems()
+	items := t.store.GetTodoItems()
 	for _, item := range items {
-		data:= strings.SplitN(item," ",2)
-		isDone:=data[0]=="true"
+		data := strings.SplitN(item, " ", 2)
+		isDone := data[0] == "true"
 		if isDone {
 			continue
 		}
-		result = append(result,data[1])
+		result = append(result, data[1])
+	}
+	return
+}
+
+func (t *TodoController) TodoItems() (result []string) {
+	items := t.store.GetTodoItems()
+	for _, item := range items {
+		data := strings.SplitN(item, " ", 2)
+		result = append(result, data[1])
 	}
 	return
 }

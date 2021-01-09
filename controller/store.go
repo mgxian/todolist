@@ -7,13 +7,44 @@ import (
 	"strings"
 )
 
+func IsFileExist(path string) bool {
+	_, err := os.Stat(path)
+	return err == nil
+}
+
+func CreateFile(path string) {
+	f, err := os.Create(path)
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+}
+
+func ClearFile(path string) {
+	if err := os.Truncate(path, 0); err != nil {
+		panic(err)
+	}
+}
+
+func DeleteFile(path string) {
+	if !IsFileExist(path) {
+		return
+	}
+
+	if err := os.Remove(path); err != nil {
+		panic(err)
+	}
+}
+
 type Store struct {
 	path string
 }
 
 func NewStore(path string) *Store {
-	os.OpenFile(path,os.O_CREATE,0644)
-	return &Store{path:path}
+	if !IsFileExist(path) {
+		CreateFile(path)
+	}
+	return &Store{path: path}
 }
 
 func (s *Store) GetTodoItems() []string {
@@ -21,11 +52,13 @@ func (s *Store) GetTodoItems() []string {
 	if err != nil {
 		panic(err)
 	}
-	return strings.Split(string(contents), "\n")
+	lines := strings.Split(string(contents), "\n")
+	return lines[:len(lines)-1]
 }
 
 func (s *Store) SaveTodoItems(items ...string) {
-	f, err := os.OpenFile(s.path, os.O_APPEND|os.O_WRONLY, 0600)
+	ClearFile(s.path)
+	f, err := os.OpenFile(s.path, os.O_WRONLY, 0600)
 	if err != nil {
 		panic(err)
 	}
