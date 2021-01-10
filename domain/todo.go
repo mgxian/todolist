@@ -9,10 +9,6 @@ type Todo struct {
 	items []*TodoItem
 }
 
-func (t *Todo) IsEmpty() bool {
-	return len(t.items) == 0
-}
-
 func (t *Todo) Add(item *TodoItem) {
 	t.items = append(t.items, item)
 }

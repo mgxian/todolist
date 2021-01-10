@@ -12,14 +12,13 @@ import (
 var path = "todolist.txt"
 
 func TestAddTodoItem(t *testing.T) {
-	repository.DeleteFile(path)
-	item := "a todo item"
-	store := repository.NewStore(path)
-	aController := controller.NewTodoController(store)
-	var result strings.Builder
+	aController := createTodoController()
 	cmd := NewCmd(aController)
 	cmdString := "add"
+	item := "a todo item"
 	args := []string{cmdString, item}
+
+	var result strings.Builder
 	cmd.Execute(args, &result)
 
 	items := aController.TodoItems()
@@ -31,19 +30,17 @@ func TestAddTodoItem(t *testing.T) {
 }
 
 func TestDoneTodoItem(t *testing.T) {
-	repository.DeleteFile(path)
-	store := repository.NewStore(path)
-	aController := controller.NewTodoController(store)
+	aController := createTodoController()
 	item := "a todo item"
 	aController.Add(item)
 	anotherItem := "another todo item"
 	aController.Add(anotherItem)
-	cmd := NewCmd(aController)
 
+	cmd := NewCmd(aController)
 	cmdString := "done"
 	args := []string{cmdString, "2"}
-	var result strings.Builder
 
+	var result strings.Builder
 	cmd.Execute(args, &result)
 
 	items := aController.NotDoneTodoItems()
@@ -55,18 +52,17 @@ func TestDoneTodoItem(t *testing.T) {
 }
 
 func TestListTodoItems(t *testing.T) {
-	repository.DeleteFile(path)
-	store := repository.NewStore(path)
-	aController := controller.NewTodoController(store)
+	aController := createTodoController()
 	item := "a todo item"
 	aController.Add(item)
 	anotherItem := "a another item"
 	aController.Add(anotherItem)
 	aController.Done(2)
-	cmd := NewCmd(aController)
 
+	cmd := NewCmd(aController)
 	cmdString := "list"
 	args := []string{cmdString}
+
 	var result strings.Builder
 	cmd.Execute(args, &result)
 
@@ -74,19 +70,19 @@ func TestListTodoItems(t *testing.T) {
 	want := fmt.Sprintf("1. %s\n\nTotal: %d items", item, 1)
 	assertEqual(t, got, want)
 }
+
 func TestListAllTodoItems(t *testing.T) {
-	repository.DeleteFile(path)
-	store := repository.NewStore(path)
-	aController := controller.NewTodoController(store)
+	aController := createTodoController()
 	item := "a todo item"
 	aController.Add(item)
 	anotherItem := "a another item"
 	aController.Add(anotherItem)
 	aController.Done(2)
-	cmd := NewCmd(aController)
 
+	cmd := NewCmd(aController)
 	cmdString := "list"
 	args := []string{cmdString, "--all"}
+
 	var result strings.Builder
 	cmd.Execute(args, &result)
 
@@ -96,17 +92,23 @@ func TestListAllTodoItems(t *testing.T) {
 }
 
 func TestUnKonCmd(t *testing.T) {
-	repository.DeleteFile(path)
-	store := repository.NewStore(path)
-	aController := controller.NewTodoController(store)
+	aController := createTodoController()
 	cmd := NewCmd(aController)
 
 	cmdString := "not-exists-cmd"
 	args := []string{cmdString}
+
 	var result strings.Builder
 	cmd.Execute(args, &result)
 
 	assertEqual(t, result.String(), "unknown command: not-exists-cmd\n")
+}
+
+func createTodoController() *controller.TodoController {
+	repository.DeleteFile(path)
+	store := repository.NewStore(path)
+	aController := controller.NewTodoController(store)
+	return aController
 }
 
 func assertEqual(t *testing.T, actual, expected interface{}) {

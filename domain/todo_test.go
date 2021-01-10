@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -13,18 +14,14 @@ func TestCreateTodo(t *testing.T) {
 
 func TestNewTodoIsEmpty(t *testing.T) {
 	todo := NewTodo()
-	if todo.IsEmpty() != true {
-		t.Errorf("expected new todo to be empty")
-	}
+	assertEqual(t, todo.Size(), 0)
 }
 
 func TestTodoAddTodoItem(t *testing.T) {
 	todo := NewTodo()
 	item := NewTodoItem("a todo item")
 	todo.Add(item)
-	if todo.IsEmpty() {
-		t.Errorf("expected todo not be empty")
-	}
+	assertEqual(t, todo.Size(), 1)
 }
 
 func TestListNotDoneTodoItems(t *testing.T) {
@@ -35,9 +32,7 @@ func TestListNotDoneTodoItems(t *testing.T) {
 	anotherItem.Done()
 	todo.Add(anotherItem)
 	items := todo.NotDoneItems()
-	if len(items) != 1 {
-		t.Errorf("got %d, want 1", len(items))
-	}
+	assertEqual(t, len(items), 1)
 }
 
 func TestListDoneTodoItems(t *testing.T) {
@@ -48,9 +43,7 @@ func TestListDoneTodoItems(t *testing.T) {
 	anotherItem.Done()
 	todo.Add(anotherItem)
 	items := todo.DoneItems()
-	if len(items) != 1 {
-		t.Errorf("got %d, want 1", len(items))
-	}
+	assertEqual(t, len(items), 1)
 }
 
 func TestTodoDoneItem(t *testing.T) {
@@ -63,6 +56,19 @@ func TestTodoDoneItem(t *testing.T) {
 	todo.Done(2)
 	items := todo.DoneItems()
 	assertEqual(t, len(items), 1)
+}
+
+func TestDumpTodo(t *testing.T) {
+	todo := NewTodo()
+	item := NewTodoItem("a todo item")
+	todo.Add(item)
+	anotherItem := NewTodoItem("need to be done item")
+	todo.Add(anotherItem)
+	todo.Done(2)
+
+	got := todo.Dump()
+	want := fmt.Sprintf("false %s\ntrue %s\n", item.Name(), anotherItem.Name())
+	assertEqual(t, got, want)
 }
 
 func TestNewTodoFromText(t *testing.T) {

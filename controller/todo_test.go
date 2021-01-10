@@ -10,9 +10,7 @@ import (
 var path = "test-todolist.txt"
 
 func TestAddTodoItem(t *testing.T) {
-	repository.DeleteFile(path)
-	store := repository.NewStore(path)
-	sut := NewTodoController(store)
+	sut, store := createTodoController()
 
 	item := "a todo item"
 	sut.Add(item)
@@ -26,9 +24,7 @@ func TestAddTodoItem(t *testing.T) {
 }
 
 func TestDoneTodoItem(t *testing.T) {
-	repository.DeleteFile(path)
-	store := repository.NewStore(path)
-	sut := NewTodoController(store)
+	sut, store := createTodoController()
 	item := "a todo item"
 	sut.Add(item)
 	anotherItem := "another todo item"
@@ -43,9 +39,7 @@ func TestDoneTodoItem(t *testing.T) {
 }
 
 func TestListTodoItems(t *testing.T) {
-	repository.DeleteFile(path)
-	store := repository.NewStore(path)
-	sut := NewTodoController(store)
+	sut, _ := createTodoController()
 	item := "a todo item"
 	sut.Add(item)
 	anotherItem := "another todo item"
@@ -65,9 +59,7 @@ func TestListTodoItems(t *testing.T) {
 }
 
 func TestListNotDoneTodoItems(t *testing.T) {
-	repository.DeleteFile(path)
-	store := repository.NewStore(path)
-	sut := NewTodoController(store)
+	sut, _ := createTodoController()
 	item := "a todo item"
 	sut.Add(item)
 	anotherItem := "another todo item"
@@ -80,6 +72,13 @@ func TestListNotDoneTodoItems(t *testing.T) {
 	want := items[0]
 	assertEqual(t, want.Name(), anotherItem)
 	assertEqual(t, want.IsDone(), false)
+}
+
+func createTodoController() (*TodoController, *repository.Store) {
+	repository.DeleteFile(path)
+	store := repository.NewStore(path)
+	sut := NewTodoController(store)
+	return sut, store
 }
 
 func assertEqual(t *testing.T, actual, expected interface{}) {
