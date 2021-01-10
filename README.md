@@ -2,7 +2,7 @@
 
 ### build
 ```sh
-go build -o todo
+GO111MODULE=on go build -o todo
 ```
 
 ### run
