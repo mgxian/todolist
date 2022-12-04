@@ -6,7 +6,7 @@ import (
 )
 
 type TodoController struct {
-	store *repository.Store
+	store repository.IStore
 }
 
 func (t *TodoController) Add(name string) int {
