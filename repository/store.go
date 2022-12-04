@@ -34,7 +34,18 @@ func DeleteFile(path string) {
 		panic(err)
 	}
 }
+type GetTodo interface {
+	GetTodo() *domain.Todo
+}
 
+type SaveTodo interface {
+	SaveTodo(*domain.Todo)
+}
+
+type IStore interface {
+	GetTodo
+	SaveTodo
+}
 type Store struct {
 	path string
 }
